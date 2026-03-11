@@ -1,10 +1,15 @@
-# stage 1
-FROM node:latest as node
-WORKDIR /app
-COPY . .
-RUN npm install
-RUN npm run build --prod
+# Stage 1: Build
+FROM node:18 AS build
 
-# stage 2
+WORKDIR /app
+
+COPY package*.json ./
+RUN npm install
+
+COPY . .
+RUN npm run build
+
+# Stage 2: Production
 FROM nginx:alpine
-COPY --from=node /app/dist/angular-app /usr/share/nginx/html
+
+COPY --from=build /app/dist /usr/share/nginx/html
